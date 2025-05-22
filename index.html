@@ -17,29 +17,31 @@
       color: #e0e0e0;
       overflow-x: hidden;
     }
-    /* Герой-блок с фоновым изображением */
+    /* Блок героя с фоновым изображением */
     .hero {
       position: relative;
       width: 100%;
       height: 100vh;
       background: url('background.jpg') no-repeat center center;
       background-size: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
-    /* Интерактивный оверлей: по умолчанию полностью скрывает фон */
+    /* Тёмный оверлей; при наведении плавно исчезает */
     .hero-overlay {
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      /* Цвет и непрозрачность оверлея */
       background: rgba(0, 0, 0, 0.8);
-      pointer-events: none;
-      /* Анимация изменения области выреза (clip-path) */
-      transition: clip-path 0.3s ease-out;
-      /* Изначально оверлей закрыт полностью – круг нулевого радиуса */
-      clip-path: circle(0px at 50% 50%);
+      z-index: 1;
+      transition: opacity 0.5s ease;
+    }
+    .hero:hover .hero-overlay {
+      opacity: 0;
     }
     /* Анимация глитч для надписи */
     @keyframes glitch {
@@ -68,7 +70,7 @@
         text-shadow: 2px 2px #FFA500, -2px -2px #FF4500;
       }
     }
-    /* Надпись "МЕНЯЙСЯ!" поверх фона */
+    /* Надпись "МЕНЯЙСЯ!" по центру */
     .hero-text {
       position: relative;
       z-index: 2;
@@ -79,6 +81,7 @@
       color: #FFA500;
       text-shadow: 2px 2px 4px #000;
       animation: glitch 2s infinite;
+      text-align: center;
     }
     /* Провокационная надпись перед слайдером */
     .warning {
@@ -115,13 +118,13 @@
       width: 100%;
       display: block;
     }
-    /* Эффект стирания – изменяется ширина оверлея, показывая нижний слой */
+    /* Оверлей для эффекта стирания – с начальной шириной 50% */
     .slider-overlay {
       position: absolute;
       top: 0;
       left: 0;
       height: 100%;
-      width: 50%; /* начальное значение */
+      width: 50%;
       overflow: hidden;
     }
     .slider-overlay img {
@@ -144,7 +147,7 @@
     .slider-handle:hover {
       background: rgba(255,140,0,1);
     }
-    /* Комментарий под слайдером */
+    /* Секция комментария */
     .commentary {
       padding: 50px 20px;
       background: #000;
@@ -178,14 +181,14 @@
   </style>
 </head>
 <body>
-  <!-- Герой-блок с интерактивным фоном -->
+  <!-- Блок героя с фоновым изображением -->
   <div class="hero">
-    <!-- Интерактивный оверлей: скрывает фон, за исключением области вокруг курсора -->
+    <!-- Тёмный оверлей, который при наведении плавно исчезает -->
     <div class="hero-overlay"></div>
     <div class="hero-text">МЕНЯЙСЯ!</div>
   </div>
 
-  <!-- Провокационная надпись перед сравнением -->
+  <!-- Провокационная надпись перед слайдером -->
   <div class="warning">
     <h2>смотри уебище</h2>
   </div>
@@ -196,7 +199,7 @@
       <div class="slider-wrapper">
         <!-- Изображение "До" (нижний слой) -->
         <img src="before.jpg" alt="До">
-        <!-- Изображение "После", которое будет "стираться" -->
+        <!-- Изображение "После", которое «стирается» -->
         <div class="slider-overlay">
           <img src="after.jpg" alt="После">
         </div>
@@ -214,32 +217,6 @@
       Современный гейминг требует широкоформатного восприятия, где каждый пиксель важен. Именно поэтому режим 4:3 воспринимается не только устаревшим, но и просто некрутейшим решением.
     </p>
   </div>
-
-  <!-- Скрипт для интерактивного эффекта фона в блоке "герой" -->
-  <script>
-    (function() {
-      const hero = document.querySelector('.hero');
-      const heroOverlay = document.querySelector('.hero-overlay');
-      
-      // При входе курсора увеличиваем радиус выреза до 150px
-      hero.addEventListener('mouseenter', () => {
-        heroOverlay.style.clipPath = "circle(150px at 50% 50%)";
-      });
-      
-      // Обновляем позицию выреза по движению курсора
-      hero.addEventListener('mousemove', (e) => {
-        const rect = hero.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * 100;
-        const y = ((e.clientY - rect.top) / rect.height) * 100;
-        heroOverlay.style.clipPath = `circle(150px at ${x}% ${y}%)`;
-      });
-      
-      // При уходе курсора сворачиваем вырез до 0px (фон закрыт)
-      hero.addEventListener('mouseleave', () => {
-        heroOverlay.style.clipPath = "circle(0px at 50% 50%)";
-      });
-    })();
-  </script>
 
   <!-- Скрипт для работы слайдера "до/после" -->
   <script>

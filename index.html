@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Меняйся! – Революция в игре</title>
+  <style>
+    /* Сброс отступов и базовые стили */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1c1c1c, #0a0a0a);
+      color: #e0e0e0;
+      overflow-x: hidden;
+    }
+    /* Герой-блок (Hero Section) */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: linear-gradient(135deg, #2b2b2b, #050505);
+      /* Можно заменить на background-image, если есть подходящая текстура */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      /* Наложение затемнения в стиле CS2 */
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 1;
+    }
+    .hero-text {
+      position: relative;
+      z-index: 2;
+      font-size: 5rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 5px;
+      color: #ff0000; /* Яркий красный акцент */
+      text-shadow: 2px 2px 4px #000;
+    }
+    /* Секция слайдера */
+    .slider-section {
+      padding: 50px 0;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slider-container {
+      position: relative;
+      width: 80%;
+      max-width: 800px;
+      overflow: hidden;
+      border: 2px solid #333;
+    }
+    .slider-wrapper {
+      position: relative;
+      width: 100%;
+    }
+    .slider-wrapper img {
+      width: 100%;
+      display: block;
+    }
+    /* Элемент-накладка, отображающий "до" и "после" */
+    .slider-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .slider-overlay img {
+      width: 100%;
+      display: block;
+    }
+    /* Ручка-слайдер */
+    .slider-handle {
+      position: absolute;
+      top: 0;
+      left: calc(50% - 15px);
+      width: 30px;
+      height: 100%;
+      background: rgba(255, 0, 0, 0.5);
+      cursor: ew-resize;
+      z-index: 3;
+      transition: background 0.3s;
+    }
+    .slider-handle:hover {
+      background: rgba(255, 0, 0, 0.8);
+    }
+    /* Секция комментария */
+    .commentary {
+      padding: 50px 20px;
+      background: #000;
+      text-align: center;
+    }
+    .commentary h2 {
+      font-size: 2.8rem;
+      color: #ff5555;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px #000;
+    }
+    .commentary p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    /* Адаптация под мобильные устройства */
+    @media (max-width: 768px) {
+      .hero-text {
+        font-size: 3rem;
+        letter-spacing: 2px;
+      }
+      .commentary h2 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Герой-блок -->
+  <div class="hero">
+    <div class="hero-text">МЕНЯЙСЯ!</div>
+  </div>
+  
+  <!-- Секция слайдера до/после -->
+  <div class="slider-section">
+    <div class="slider-container" id="slider">
+      <div class="slider-wrapper">
+        <!-- Фоновое изображение "До" -->
+        <img src="before.jpg" alt="До">
+        <!-- Наложенное изображение "После" -->
+        <div class="slider-overlay">
+          <img src="after.jpg" alt="После">
+        </div>
+        <!-- Ручка-ползунок -->
+        <div class="slider-handle" id="slider-handle"></div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Секция комментария -->
+  <div class="commentary">
+    <h2>Почему играть 4:3 хуже всего и вообще дерьмо</h2>
+    <p>
+      Игра в 4:3 ограничивает перспективу, нарушает эстетическую целостность и даже психологически сдавливает игровой процесс.
+      Современный гейминг требует широкоформатного восприятия, где каждый пиксель важен. Именно поэтому режим 4:3 воспринимается не только устаревшим, но и просто некрутейшим решением.
+    </p>
+  </div>
+  
+  <!-- Скрипт для слайдера -->
+  <script>
+    (function() {
+      const slider = document.getElementById("slider");
+      const handle = document.getElementById("slider-handle");
+      const overlay = slider.querySelector(".slider-overlay");
+      
+      let dragging = false;
+  
+      // Функция обновления позиции ручки и ширины наложения
+      function slideMove(clientX) {
+        const rect = slider.getBoundingClientRect();
+        let offsetX = clientX - rect.left;
+        // Ограничиваем в пределах слайдера
+        if (offsetX < 0) offsetX = 0;
+        if (offsetX > rect.width) offsetX = rect.width;
+        let percentage = (offsetX / rect.width) * 100;
+  
+        overlay.style.width = percentage + "%";
+        handle.style.left = `calc(${percentage}% - 15px)`;
+      }
+  
+      // Обработчик нажатия
+      handle.addEventListener("mousedown", function(e) {
+        dragging = true;
+      });
+  
+      // Обработчик отпускания
+      document.addEventListener("mouseup", function() {
+        dragging = false;
+      });
+  
+      // Обработка движения мыши по слайдеру
+      slider.addEventListener("mousemove", function(e) {
+        if (!dragging) return;
+        slideMove(e.clientX);
+      });
+  
+      // Поддержка сенсорных устройств
+      slider.addEventListener("touchstart", function(e) {
+        dragging = true;
+        slideMove(e.touches[0].clientX);
+      });
+      slider.addEventListener("touchmove", function(e) {
+        if (!dragging) return;
+        slideMove(e.touches[0].clientX);
+        e.preventDefault();
+      });
+      slider.addEventListener("touchend", function() {
+        dragging = false;
+      });
+    })();
+  </script>
+</body>
+</html>

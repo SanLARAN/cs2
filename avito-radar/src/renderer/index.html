@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none';" />
+  <title>Avito Radar</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <!-- ───────────────────────────── боковая панель ───────────────────────────── -->
+  <aside class="sidebar">
+    <header class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="34" height="34">
+          <circle cx="24" cy="24" r="21" fill="none" stroke="rgba(36,211,162,.25)" stroke-width="2"/>
+          <circle cx="24" cy="24" r="13" fill="none" stroke="rgba(36,211,162,.35)" stroke-width="2"/>
+          <circle cx="24" cy="24" r="5" fill="none" stroke="rgba(36,211,162,.5)" stroke-width="2"/>
+          <path d="M24 24 L42 15 A21 21 0 0 0 34 6 Z" fill="url(#sweep)"/>
+          <circle cx="33" cy="17" r="3" fill="#24d3a2"/>
+          <defs>
+            <linearGradient id="sweep" x1="24" y1="24" x2="42" y2="15" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#24d3a2" stop-opacity=".65"/>
+              <stop offset="1" stop-color="#24d3a2" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>Avito Radar</strong>
+        <span id="brandSub">следит за новыми объявлениями</span>
+      </div>
+      <button class="icon-btn" id="btnSettings" title="Настройки (Ctrl+,)" aria-label="Настройки">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm8.9-2.3.1-.9a7.9 7.9 0 0 0 0-1.8l1.7-1.3-1.9-3.3-2 .8a7.8 7.8 0 0 0-1.6-.9L16.9 3h-3.8l-.3 2.1c-.6.2-1.1.5-1.6.9l-2-.8-1.9 3.3L9 9.8a7.9 7.9 0 0 0 0 1.8L7.3 13l1.9 3.3 2-.8c.5.4 1 .7 1.6.9l.3 2.1h3.8l.3-2.1c.6-.2 1.1-.5 1.6-.9l2 .8 1.9-3.3-1.8-1.3Z"/></svg>
+      </button>
+    </header>
+
+    <div class="sidebar-toolbar">
+      <button class="btn btn-primary btn-block" id="btnNewProfile">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6V5Z"/></svg>
+        Новый поиск
+      </button>
+    </div>
+
+    <div class="sidebar-label">
+      <span>Мои поиски</span>
+      <span class="badge-soft" id="profilesCount">0</span>
+    </div>
+
+    <nav class="profile-list" id="profileList" aria-label="Список поисков"></nav>
+
+    <div class="sidebar-empty" id="sidebarEmpty" hidden>
+      <p>Пока нет ни одного поиска.</p>
+      <p class="muted">Создайте первый — например «iPhone до 60 000 ₽ в Казани».</p>
+    </div>
+
+    <footer class="sidebar-footer">
+      <button class="btn btn-ghost btn-block" id="btnRunAll" title="Проверить все поиски (Ctrl+R)">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 4V1L8 5l4 4V6a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg>
+        Проверить все сейчас
+      </button>
+      <div class="status-line">
+        <span class="pulse" id="monitorPulse"></span>
+        <span id="monitorState">запуск…</span>
+      </div>
+    </footer>
+  </aside>
+
+  <!-- ───────────────────────────── основная область ───────────────────────────── -->
+  <main class="main">
+    <div class="empty-screen" id="emptyScreen" hidden>
+      <div class="empty-art">
+        <svg viewBox="0 0 120 120" width="96" height="96">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(36,211,162,.18)" stroke-width="2"/>
+          <circle cx="60" cy="60" r="32" fill="none" stroke="rgba(36,211,162,.28)" stroke-width="2"/>
+          <circle cx="60" cy="60" r="14" fill="none" stroke="rgba(36,211,162,.4)" stroke-width="2"/>
+          <circle cx="79" cy="44" r="4" fill="#24d3a2"/>
+        </svg>
+      </div>
+      <h2>Начнём охоту за новыми объявлениями</h2>
+      <p class="muted">Создайте поиск: укажите запрос, город, цену и район. Avito Radar будет проверять Авито
+        по расписанию и подсвечивать то, что появилось только что.</p>
+      <button class="btn btn-primary" id="btnEmptyNew">Создать поиск</button>
+    </div>
+
+    <div id="profileView" class="profile-view" hidden>
+      <header class="main-header">
+        <div class="head-titles">
+          <div class="head-line">
+            <h1 id="headName">Поиск</h1>
+            <span class="chip" id="headSource">Авто</span>
+            <span class="chip chip-quiet" id="headEnabled">включён</span>
+          </div>
+          <p class="head-sub" id="headSub">—</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn btn-ghost" id="btnRunOne" title="Обновить сейчас">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 4V1L8 5l4 4V6a6 6 0 1 1-6 6H4a8 8 0 1 0 8-8Z"/></svg>
+            Обновить
+          </button>
+          <button class="btn btn-ghost" id="btnExport" title="Экспорт в CSV">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 3v10.6l3.3-3.3 1.4 1.4L12 17.4l-4.7-5.7 1.4-1.4L12 13.6V3h0ZM5 19h14v2H5v-2Z"/></svg>
+            CSV
+          </button>
+          <button class="btn btn-ghost" id="btnEditProfile" title="Изменить фильтры">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4 17.2V20h2.8L17 9.8 14.2 7 4 17.2ZM19.7 7.3a1 1 0 0 0 0-1.4l-1.6-1.6a1 1 0 0 0-1.4 0L15.3 5.7 18.1 8.5l1.6-1.2Z"/></svg>
+            Фильтры
+          </button>
+          <button class="btn btn-ghost btn-danger-ghost" id="btnDeleteProfile" title="Удалить поиск">
+            <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M9 3h6l1 2h4v2H4V5h4l1-2Zm-3 6h12l-1 12H7L6 9Z"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="stats-row">
+        <div class="stat">
+          <span class="stat-label">Найдено</span>
+          <strong id="statFound">0</strong>
+          <span class="stat-hint" id="statFoundHint">совпадений</span>
+        </div>
+        <div class="stat stat-accent">
+          <span class="stat-label">Новых</span>
+          <strong id="statNew">0</strong>
+          <span class="stat-hint">за последнюю проверку</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Снижение цены</span>
+          <strong id="statDrops">0</strong>
+          <span class="stat-hint">за последнюю проверку</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Следующая проверка</span>
+          <strong id="statNext">—</strong>
+          <span class="stat-hint" id="statChecked">ещё не проверялся</span>
+        </div>
+      </div>
+
+      <div class="notice" id="notice" hidden></div>
+
+      <div class="list-toolbar">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="all" role="tab">Все</button>
+          <button class="tab" data-tab="new" role="tab">Новые <span class="tab-count" id="tabNewCount">0</span></button>
+          <button class="tab" data-tab="drop" role="tab">Снижение цены <span class="tab-count" id="tabDropCount">0</span></button>
+        </div>
+        <div class="list-tools">
+          <label class="search-box">
+            <svg viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M10 4a6 6 0 1 0 3.5 10.9l4.3 4.3 1.4-1.4-4.3-4.3A6 6 0 0 0 10 4Zm0 2a4 4 0 1 1 0 8 4 4 0 0 1 0-8Z"/></svg>
+            <input id="filterText" type="search" placeholder="Фильтр по названию…" autocomplete="off" />
+          </label>
+          <select id="sortSelect" class="select" title="Сортировка">
+            <option value="new">Сначала новые</option>
+            <option value="fresh">Сначала дешёвые</option>
+            <option value="expensive">Сначала дорогие</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="cards" id="cards"></div>
+
+      <div class="list-empty" id="listEmpty" hidden>
+        <p id="listEmptyText">Здесь появятся объявления после первой проверки.</p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ───────────────────────────── карточка профиля (модальное окно) ───────────────────────────── -->
+<div class="modal" id="profileModal" hidden>
+  <div class="modal-backdrop" data-close="profileModal"></div>
+  <div class="modal-panel modal-wide" role="dialog" aria-modal="true" aria-labelledby="profileModalTitle">
+    <header class="modal-head">
+      <h2 id="profileModalTitle">Новый поиск</h2>
+      <button class="icon-btn" data-close="profileModal" aria-label="Закрыть">✕</button>
+    </header>
+    <form class="modal-body" id="profileForm">
+      <input type="hidden" name="id" />
+
+      <div class="field">
+        <label for="pfName">Название поиска</label>
+        <input id="pfName" name="name" placeholder="Например: iPhone 15 в Казани" required maxlength="120" />
+        <span class="hint">Видно только вам — по нему приходят уведомления.</span>
+      </div>
+
+      <div class="field">
+        <label>Источник данных</label>
+        <div class="radio-row" id="sourceRow">
+          <label class="radio"><input type="radio" name="source" value="auto" checked /><span>Авто</span></label>
+          <label class="radio"><input type="radio" name="source" value="web" /><span>Сайт</span></label>
+          <label class="radio"><input type="radio" name="source" value="api" /><span>Мобильное API</span></label>
+          <label class="radio"><input type="radio" name="source" value="demo" /><span>Демо</span></label>
+        </div>
+        <span class="hint" id="sourceHint">Авто: сначала мобильное API, при ошибке — страница сайта.</span>
+      </div>
+
+      <div class="field">
+        <label for="pfUrl">Ссылка на поиск Авито <span class="muted">(необязательно, но даёт все фильтры)</span></label>
+        <div class="input-with-btn">
+          <input id="pfUrl" name="url" placeholder="https://www.avito.ru/kazan/telefony?pmin=20000&pmax=90000" />
+          <button type="button" class="btn btn-ghost" id="btnOpenAvito" title="Открыть Авито с текущими фильтрами и скопировать адрес">
+            Открыть Авито
+          </button>
+        </div>
+        <span class="hint">Настройте район, категорию и сортировку «по дате» на сайте, затем скопируйте адрес страницы сюда.</span>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="pfQuery">Что ищем</label>
+          <input id="pfQuery" name="query" placeholder="iphone 15" maxlength="200" />
+        </div>
+        <div class="field">
+          <label for="pfCity">Город</label>
+          <input id="pfCity" name="city" placeholder="Казань" />
+          <span class="hint">Для сайта лучше латиницей: kazan, moskva, sankt-peterburg.</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="pfPriceMin">Цена от, ₽</label>
+          <input id="pfPriceMin" name="priceMin" inputmode="numeric" placeholder="20 000" />
+        </div>
+        <div class="field">
+          <label for="pfPriceMax">Цена до, ₽</label>
+          <input id="pfPriceMax" name="priceMax" inputmode="numeric" placeholder="90 000" />
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="pfPlus">Обязательные слова</label>
+          <input id="pfPlus" name="keywordsPlus" placeholder="256gb, гарантия" />
+          <span class="hint">Через запятую. Хотя бы одно из них должно быть в объявлении.</span>
+        </div>
+        <div class="field">
+          <label for="pfMinus">Исключить слова</label>
+          <input id="pfMinus" name="keywordsMinus" placeholder="битый, на запчасти, реплика" />
+          <span class="hint">Через запятую. Такие объявления будут скрыты.</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="pfCategorySlug">Раздел Авито (slug)</label>
+          <input id="pfCategorySlug" name="categorySlug" placeholder="telefony" />
+          <span class="hint">Часть адреса после города: /kazan/<b>telefony</b>. Можно оставить пустым.</span>
+        </div>
+        <div class="field">
+          <label for="pfCategoryId">ID категории для API</label>
+          <input id="pfCategoryId" name="categoryId" placeholder="84" />
+          <span class="hint">Нужен только для мобильного API. Необязательно.</span>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="field">
+          <label for="pfInterval">Своя частота проверки, сек</label>
+          <input id="pfInterval" name="intervalSec" inputmode="numeric" placeholder="как в настройках" />
+        </div>
+        <div class="field">
+          <label for="pfPages">Страниц за проверку</label>
+          <input id="pfPages" name="pages" inputmode="numeric" min="1" max="5" value="1" />
+        </div>
+      </div>
+
+      <div class="checks">
+        <label class="check"><input type="checkbox" name="enabled" checked /><span>Поиск включён</span></label>
+        <label class="check"><input type="checkbox" name="excludePromo" /><span>Скрывать рекламные объявления</span></label>
+        <label class="check"><input type="checkbox" name="onlyToday" /><span>Только за сегодня (фильтр сайта)</span></label>
+      </div>
+
+      <div class="form-error" id="profileFormError" hidden></div>
+
+      <footer class="modal-foot">
+        <button type="button" class="btn btn-ghost" data-close="profileModal">Отмена</button>
+        <button type="submit" class="btn btn-primary" id="btnSaveProfile">Сохранить</button>
+      </footer>
+    </form>
+  </div>
+</div>
+
+<!-- ───────────────────────────── настройки ───────────────────────────── -->
+<div class="modal" id="settingsModal" hidden>
+  <div class="modal-backdrop" data-close="settingsModal"></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <header class="modal-head">
+      <h2 id="settingsTitle">Настройки</h2>
+      <button class="icon-btn" data-close="settingsModal" aria-label="Закрыть">✕</button>
+    </header>
+    <div class="modal-body">
+      <section class="settings-section">
+        <h3>Мониторинг</h3>
+        <div class="grid-2">
+          <div class="field">
+            <label for="stPoll">Проверять каждые, сек</label>
+            <input id="stPoll" type="number" min="30" max="3600" step="10" />
+            <span class="hint">Не ставьте меньше 60 с — Авито это не любит.</span>
+          </div>
+          <div class="field">
+            <label for="stPages">Страниц по умолчанию</label>
+            <input id="stPages" type="number" min="1" max="5" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="stJitter">Случайная задержка, сек (0–15)</label>
+          <input id="stJitter" type="number" min="0" max="15" />
+          <span class="hint">Разброс между проверками, чтобы запросы не шли ровным строем.</span>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Уведомления</h3>
+        <label class="check"><input type="checkbox" id="stDesktop" /><span>Системные уведомления Windows</span></label>
+        <label class="check"><input type="checkbox" id="stSound" /><span>Звук при новом объявлении</span></label>
+        <label class="check"><input type="checkbox" id="stTray" /><span>Сворачивать в трей при закрытии</span></label>
+        <label class="check"><input type="checkbox" id="stOpenOnNew" /><span>Разворачивать окно при новом объявлении</span></label>
+        <button class="btn btn-ghost" id="btnTestNotify" type="button">Проверить уведомление</button>
+      </section>
+
+      <section class="settings-section">
+        <h3>Telegram</h3>
+        <label class="check"><input type="checkbox" id="stTgEnabled" /><span>Отправлять новые объявления в Telegram</span></label>
+        <div class="grid-2">
+          <div class="field">
+            <label for="stTgToken">Токен бота</label>
+            <input id="stTgToken" type="password" placeholder="123456:ABC-DEF…" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="stTgChat">Chat ID</label>
+            <input id="stTgChat" placeholder="123456789" autocomplete="off" />
+          </div>
+        </div>
+        <span class="hint">Создайте бота у @BotFather, напишите ему /start, затем узнайте chat_id у @userinfobot.</span>
+        <div class="row-actions">
+          <button class="btn btn-ghost" id="btnTestTelegram" type="button">Проверить подключение</button>
+          <span class="inline-status" id="tgStatus"></span>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Данные</h3>
+        <p class="muted small">Настройки и история найденного: <code id="userDataPath">—</code></p>
+        <div class="row-actions">
+          <button class="btn btn-ghost" id="btnOpenUserData" type="button">Открыть папку</button>
+          <button class="btn btn-ghost" id="btnRunAllSettings" type="button">Проверить все поиски</button>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h3>Журнал</h3>
+        <div class="log-view" id="logView"></div>
+      </section>
+
+      <footer class="modal-foot">
+        <span class="muted small" id="versionLabel"></span>
+        <button type="button" class="btn btn-primary" id="btnSaveSettings">Готово</button>
+      </footer>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="preview-banner" id="previewBanner" hidden>Предпросмотр интерфейса — это окно не связано с Electron. Установите приложение, чтобы включить реальный мониторинг.</div>
+
+<script src="preview-mock.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

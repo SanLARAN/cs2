@@ -1,0 +1,64 @@
+{
+  "name": "avito-radar",
+  "productName": "Avito Radar",
+  "version": "1.0.0",
+  "description": "Мониторинг новых объявлений Авито по вашим фильтрам: район, цена, ключевые слова",
+  "main": "src/main/main.js",
+  "author": "Avito Radar",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "test": "node --test tests/*.test.js",
+    "icon": "node scripts/make-icon.js",
+    "preview": "node scripts/preview-server.js",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:dir": "electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^45.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "ru.avito.radar",
+    "productName": "Avito Radar",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json",
+      "!**/*.map"
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.png",
+      "artifactName": "Avito-Radar-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Avito Radar"
+    },
+    "linux": {
+      "target": ["AppImage"],
+      "category": "Network",
+      "icon": "assets/icon.png"
+    },
+    "mac": {
+      "target": ["dmg"],
+      "category": "public.app-category.productivity",
+      "icon": "assets/icon.png"
+    }
+  }
+}
